@@ -11,4 +11,4 @@ COPY . /usr/modifier-server
 
 EXPOSE 7002
 
-CMD ["gunicorn", "start:app", "-c", "./gunicorn.conf.py"]
+CMD ["gunicorn", "main:app", "-c", "./gunicorn.conf.py"]

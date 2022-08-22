@@ -5,12 +5,14 @@ import os
 import uuid
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file, after_this_request
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
 from modifier import modifier_icon
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_host=1, x_prefix=1)
 
-UPLOAD_FOLDER = './input'
-OUTPUT_FOLDER = './output'
+UPLOAD_FOLDER = '/usr/modifier-server/input'
+OUTPUT_FOLDER = '/usr/modifier-server/output'
 ALLOWED_EXTENSIONS = {'xml', 'dds'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -45,13 +47,12 @@ def download_file(filename):
     os.remove(file_path)
     os.remove(src_path)
 
-    return send_file(return_data, as_attachment = True, attachment_filename = f'battleAtlas{ext}')
+    return send_file(return_data, as_attachment = True, download_name = f'battleAtlas{ext}')
 	
 @app.route('/upload', methods = ['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
-        print(request.files)
         if 'dds' not in request.files:
             flash('没有选择dds文件')
             return redirect(request.url)
